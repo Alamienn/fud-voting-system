@@ -1,0 +1,1196 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FUD Voting System Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --fud-primary: #0a3d7c;
+            --fud-secondary: #f5c518;
+            --fud-gradient: linear-gradient(135deg, #0a3d7c 0%, #1a5a9c 100%);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7fc; color: #1a2a3a; }
+
+        .navbar-fud {
+            background: var(--fud-gradient);
+            box-shadow: 0 4px 20px rgba(10, 61, 124, 0.25);
+            padding: 10px 0;
+            border-bottom: 4px solid var(--fud-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 1050;
+        }
+        .navbar-fud .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .navbar-fud .navbar-brand img { height: 42px; }
+        .navbar-fud .navbar-brand .brand-sub { font-weight: 400; font-size: 0.7rem; opacity: 0.85; display: block; }
+        .navbar-fud .nav-link { color: rgba(255,255,255,0.85) !important; font-weight: 500; font-size: 0.9rem; padding: 8px 16px; border-radius: 8px; transition: all 0.25s ease; }
+        .navbar-fud .nav-link:hover, .navbar-fud .nav-link.active { color: #fff !important; background: rgba(255,255,255,0.15); }
+        .navbar-fud .nav-link i { margin-right: 6px; }
+        .navbar-fud .user-badge { background: rgba(255,255,255,0.15); border-radius: 50px; padding: 6px 16px 6px 12px; color: #fff; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; }
+
+        .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--fud-gradient); padding: 20px; }
+        .auth-card { background: #fff; border-radius: 24px; padding: 40px 35px; max-width: 440px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: fadeUp 0.5s ease; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+        .auth-card .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-card .auth-logo h3 { font-weight: 700; color: var(--fud-primary); }
+        .auth-card .auth-logo h3 span { color: var(--fud-secondary); }
+        .auth-card .auth-logo p { color: #5a6e85; font-size: 0.9rem; }
+        .auth-card .form-control { border-radius: 12px; padding: 12px 16px; border: 1.5px solid #e2e8f0; transition: all 0.25s ease; }
+        .auth-card .form-control:focus { border-color: var(--fud-primary); box-shadow: 0 0 0 3px rgba(10,61,124,0.12); }
+        .btn-primary-fud { background: var(--fud-gradient); border: none; border-radius: 12px; padding: 12px; font-weight: 600; width: 100%; color: #fff; transition: all 0.3s ease; }
+        .btn-primary-fud:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(10,61,124,0.3); color: #fff; }
+        .auth-link { color: var(--fud-primary); font-weight: 600; text-decoration: none; cursor: pointer; }
+        .auth-link:hover { text-decoration: underline; }
+        .divider { display: flex; align-items: center; gap: 12px; color: #a0b0c4; font-size: 0.85rem; margin: 20px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+        .alert-fud { background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; color: #5a3e00; display: none; margin-bottom: 16px; }
+        .alert-success-fud { background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; color: #2e7d32; display: none; margin-bottom: 16px; }
+        .toast-fud { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1a2a3a; color: #fff; padding: 14px 30px; border-radius: 50px; font-weight: 500; z-index: 9999; box-shadow: 0 8px 30px rgba(0,0,0,0.25); border-left: 5px solid var(--fud-secondary); animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+
+        .card-fud { background: #fff; border-radius: 16px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s ease; height: 100%; overflow: hidden; }
+        .card-fud .card-header-fud { background: var(--fud-gradient); color: #fff; padding: 16px 24px; font-weight: 600; border: none; display: flex; align-items: center; gap: 10px; }
+        .card-fud .card-body { padding: 24px; }
+        .stat-card { background: #fff; border-radius: 16px; padding: 20px 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); border-left: 4px solid var(--fud-primary); transition: all 0.3s ease; }
+        .stat-card .stat-number { font-size: 2rem; font-weight: 700; color: var(--fud-dark); }
+        .stat-card .stat-label { font-size: 0.85rem; color: #5a6e85; }
+
+        .candidate-item { display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: 12px; background: #f8fafc; margin-bottom: 10px; transition: all 0.2s ease; border: 1px solid transparent; }
+        .candidate-item:hover { background: #eef4fb; border-color: #d0ddee; }
+        .candidate-item .avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--fud-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .candidate-item .cand-info { flex: 1; }
+        .candidate-item .cand-info .name { font-weight: 600; font-size: 0.95rem; }
+        .candidate-item .cand-info .position { font-size: 0.8rem; color: #5a6e85; }
+        .candidate-item .cand-info .dept { font-size: 0.75rem; color: #7a8ea5; display: block; }
+        .candidate-item .vote-btn { background: var(--fud-primary); color: #fff; border: none; border-radius: 50px; padding: 6px 18px; font-size: 0.8rem; font-weight: 600; transition: all 0.25s ease; }
+        .candidate-item .vote-btn:hover { background: #0c4a8a; transform: scale(1.02); }
+        .candidate-item .vote-btn:disabled { background: #b0c4d8; cursor: not-allowed; }
+
+        .result-bar { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .result-bar .cand-name { width: 150px; font-weight: 500; font-size: 0.9rem; flex-shrink: 0; }
+        .result-bar .progress-track { flex: 1; height: 12px; background: #e9edf2; border-radius: 50px; overflow: hidden; }
+        .result-bar .progress-track .fill { height: 100%; border-radius: 50px; background: var(--fud-gradient); transition: width 1.2s ease; }
+        .result-bar .percentage { font-weight: 700; font-size: 0.9rem; width: 60px; text-align: right; color: var(--fud-primary); }
+        .result-bar .vote-count { font-size: 0.8rem; color: #5a6e85; width: 70px; text-align: right; }
+
+        .page-container { display: none; animation: fadeIn 0.4s ease; }
+        .page-container.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(15px); } to { opacity:1; transform:translateY(0); } }
+
+        .dashboard-wrapper { display: none; }
+        .dashboard-wrapper.active { display: block; }
+        .auth-bg-pattern { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--fud-gradient); z-index: -1; }
+
+        .footer-fud { background: #1a2a3a; color: rgba(255,255,255,0.7); padding: 30px 0 20px; margin-top: 50px; border-top: 4px solid var(--fud-secondary); }
+        .footer-fud a { color: rgba(255,255,255,0.6); text-decoration: none; }
+        .footer-fud a:hover { color: #fff; }
+        .footer-fud .footer-brand { font-weight: 700; color: #fff; font-size: 1.1rem; }
+        .footer-fud .footer-brand span { color: var(--fud-secondary); }
+        .footer-fud .footer-credit { background: rgba(255,255,255,0.05); border-radius: 50px; padding: 6px 18px; display: inline-block; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.08); }
+        .footer-fud .footer-credit strong { color: #fff; }
+
+        .hero-section { background: var(--fud-gradient); color: #fff; padding: 40px 0 30px; border-radius: 0 0 40px 40px; margin-bottom: 30px; position: relative; overflow: hidden; }
+        .hero-section::before { content: ''; position: absolute; top: -50%; right: -10%; width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+        .hero-section .container { position: relative; z-index: 2; }
+        .hero-section h1 { font-weight: 700; font-size: 2rem; letter-spacing: -1px; }
+        .hero-section .badge-election { background: var(--fud-secondary); color: var(--fud-dark); font-weight: 700; padding: 6px 18px; border-radius: 50px; font-size: 0.8rem; display: inline-block; margin-bottom: 10px; }
+        .hero-section .hero-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+        .hero-section .hero-stats .stat-item { background: rgba(255,255,255,0.12); backdrop-filter: blur(6px); padding: 8px 16px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .hero-section .hero-stats .stat-item .number { font-size: 1.4rem; font-weight: 700; display: block; }
+        .hero-section .hero-stats .stat-item .label { font-size: 0.75rem; opacity: 0.8; }
+
+        .admin-table-wrap { overflow-x: auto; }
+        .admin-table-wrap table { width: 100%; border-collapse: collapse; }
+        .admin-table-wrap th { background: #f0f4fa; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 0.85rem; }
+        .admin-table-wrap td { padding: 10px 12px; border-bottom: 1px solid #eef2f7; font-size: 0.9rem; }
+        .admin-table-wrap tr:hover td { background: #f8fafc; }
+        .btn-sm-danger { background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 4px 14px; font-size: 0.75rem; font-weight: 600; transition: all 0.2s ease; }
+        .btn-sm-danger:hover { background: #c82333; color: #fff; }
+        .badge-votes { background: var(--fud-primary); color: #fff; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; }
+
+        .profile-card { background: #fff; border-radius: 16px; padding: 24px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .profile-card .avatar-lg { width: 80px; height: 80px; border-radius: 50%; background: var(--fud-gradient); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; margin: 0 auto 12px; }
+        .profile-card .name { font-weight: 700; font-size: 1.2rem; }
+        .profile-card .detail { color: #5a6e85; font-size: 0.9rem; margin-bottom: 4px; }
+        .profile-card .badge-role { background: var(--fud-secondary); color: var(--fud-dark); padding: 4px 16px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-top: 8px; }
+
+        .auth-tabs { display: flex; gap: 0; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .auth-tabs .tab-btn { flex: 1; padding: 10px; border: none; background: #f8fafc; font-weight: 600; font-size: 0.9rem; color: #5a6e85; transition: all 0.3s ease; cursor: pointer; }
+        .auth-tabs .tab-btn.active { background: var(--fud-gradient); color: #fff; }
+        .auth-tabs .tab-btn:hover:not(.active) { background: #eef2f7; }
+
+        @media (max-width: 768px) {
+            .result-bar .cand-name { width: 80px; font-size: 0.75rem; }
+            .result-bar .vote-count { width: 50px; font-size: 0.7rem; }
+            .result-bar .percentage { width: 45px; font-size: 0.75rem; }
+            .navbar-fud .navbar-brand { font-size: 1rem; }
+            .navbar-fud .navbar-brand img { height: 35px; }
+            .auth-card { padding: 28px 20px; }
+        }
+        @media (max-width: 576px) {
+            .candidate-item { flex-wrap: wrap; }
+            .candidate-item .vote-btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== AUTH PAGE (Combined Login/Register) ===== -->
+    <div id="authPage" class="auth-wrapper">
+        <div class="auth-bg-pattern"></div>
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h3>FUD <span>Voting</span></h3>
+                <p>Students' Union Government Elections</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="tab-btn active" id="loginTab" onclick="switchAuthTab('login')">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                </button>
+                <button class="tab-btn" id="registerTab" onclick="switchAuthTab('register')">
+                    <i class="bi bi-person-plus me-1"></i> Register
+                </button>
+            </div>
+
+            <div class="text-end mb-2">
+                <small>
+                    <a href="javascript:void(0)" onclick="showAdminLogin()" class="auth-link" style="font-size:0.8rem;">
+                        <i class="bi bi-shield-lock me-1"></i> Admin Login
+                    </a>
+                </small>
+            </div>
+
+            <div id="authAlert" class="alert-fud"></div>
+            <div id="authSuccess" class="alert-success-fud"></div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleStudentLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Registration Number</label>
+                    <input type="text" class="form-control" id="studentRegNo" placeholder="e.g. FUD/CSC/22/001" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="studentPassword" placeholder="Enter your password" required />
+                </div>
+                <button type="submit" class="btn btn-primary-fud">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Sign In
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" onsubmit="handleStudentRegister(event)" style="display:none;">
+                <div class="mb-2">
+                    <label class="form-label fw-semibold">Full Name</label>
+                    <input type="text" class="form-control" id="regFullName" placeholder="e.g. Muhammad Mustapha Usman" required />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label fw-semibold">Registration Number</label>
+                    <input type="text" class="form-control" id="regRegNo" placeholder="e.g. FUD/CSC/22/001" required />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label fw-semibold">Email Address</label>
+                    <input type="email" class="form-control" id="regEmail" placeholder="e.g. student@fud.edu.ng" required />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label fw-semibold">Department</label>
+                    <select class="form-control" id="regDepartment" required>
+                        <option value="">Select Department</option>
+                        <option>Computer Science</option>
+                        <option>Economics</option>
+                        <option>Political Science</option>
+                        <option>Law</option>
+                        <option>Software Engineering</option>
+                        <option>Mass Communication</option>
+                        <option>Mathematics</option>
+                        <option>Biology</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label fw-semibold">Level</label>
+                    <select class="form-control" id="regLevel" required>
+                        <option value="">Select Level</option>
+                        <option>100L</option>
+                        <option>200L</option>
+                        <option>300L</option>
+                        <option>400L</option>
+                        <option>500L</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="regPassword" placeholder="Min 6 characters" required minlength="6" />
+                </div>
+                <button type="submit" class="btn btn-primary-fud">
+                    <i class="bi bi-person-plus me-2"></i> Create Account
+                </button>
+            </form>
+
+            <div class="divider">or</div>
+            <div class="text-center">
+                <small class="text-muted">🔒 Secured &amp; Encrypted</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN LOGIN ===== -->
+    <div id="adminAuthPage" class="auth-wrapper" style="display:none;">
+        <div class="auth-bg-pattern"></div>
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h3>FUD <span>Admin</span></h3>
+                <p>Administrator Login</p>
+            </div>
+            <div id="adminAlert" class="alert-fud"></div>
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Username</label>
+                    <input type="text" class="form-control" id="adminUsername" placeholder="Enter username" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Password</label>
+                    <input type="password" class="form-control" id="adminPassword" placeholder="Enter password" required />
+                </div>
+                <button type="submit" class="btn btn-primary-fud">
+                    <i class="bi bi-shield-lock me-2"></i> Admin Login
+                </button>
+            </form>
+            <div class="divider">or</div>
+            <p class="text-center mb-0">
+                <a href="javascript:void(0)" onclick="showStudentAuth()" class="auth-link">
+                    <i class="bi bi-person me-1"></i> Student Login / Register
+                </a>
+            </p>
+            <div class="mt-3 text-center">
+                <small class="text-muted">🔒 Secure Admin Access</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== STUDENT DASHBOARD ===== -->
+    <div id="studentDashboard" class="dashboard-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-fud">
+            <div class="container">
+                <a class="navbar-brand" href="#" onclick="showStudentPage('home')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f5c518'/%3E%3Ctext x='50' y='68' font-size='48' font-weight='bold' text-anchor='middle' fill='%230a3d7c'%3EFUD%3C/text%3E%3C/svg%3E" alt="FUD" />
+                    <div>FUD Voting<span class="brand-sub">SUG Elections 2026</span></div>
+                </a>
+                <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#studentNav">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="studentNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                        <li class="nav-item"><a class="nav-link active" href="#" onclick="showStudentPage('home')"><i class="bi bi-house"></i>Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showStudentPage('voting')"><i class="bi bi-check2-circle"></i>Vote</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showStudentPage('results')"><i class="bi bi-bar-chart"></i>Results</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showStudentPage('profile')"><i class="bi bi-person"></i>Profile</a></li>
+                        <li class="nav-item ms-lg-2">
+                            <span class="user-badge"><i class="bi bi-person-circle"></i><span id="sDisplayName">Student</span></span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" onclick="logoutStudent()" style="color:rgba(255,255,255,0.7)!important;">
+                                <i class="bi bi-box-arrow-right"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container" id="studentContent">
+            <!-- HOME PAGE -->
+            <div id="studentHomePage" class="page-container active">
+                <div class="hero-section">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <span class="badge-election"><i class="bi bi-megaphone me-1"></i> Election 2026 — Voting is Open</span>
+                                <h1>Welcome, <span id="sWelcomeName">Student</span>!</h1>
+                                <p class="fs-5 opacity-75 mb-3" style="max-width:600px;">Cast your vote securely for the next Students' Union Government leaders. Your voice matters!</p>
+                                <a href="#" onclick="showStudentPage('voting')" class="btn btn-light btn-lg px-5 fw-bold rounded-pill" style="color:var(--fud-primary);"><i class="bi bi-check2-circle me-2"></i>Vote Now</a>
+                                <a href="#" onclick="showStudentPage('results')" class="btn btn-outline-light btn-lg px-4 rounded-pill ms-2"><i class="bi bi-bar-chart me-2"></i>View Results</a>
+                            </div>
+                            <div class="col-lg-4 mt-4 mt-lg-0">
+                                <div class="hero-stats">
+                                    <div class="stat-item"><span class="number" id="sTotalVoters">0</span><span class="label">Registered Voters</span></div>
+                                    <div class="stat-item"><span class="number" id="sTotalVotes">0</span><span class="label">Votes Cast</span></div>
+                                    <div class="stat-item"><span class="number" id="sTotalCandidates">0</span><span class="label">Candidates</span></div>
+                                    <div class="stat-item"><span class="number" id="sTotalPositions">0</span><span class="label">Positions</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4"><div class="stat-card"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Students</div><div class="stat-number" id="sStatStudents">0</div></div><i class="bi bi-people stat-icon" style="font-size:2rem;opacity:0.4;"></i></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color:var(--fud-secondary);"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Votes Cast</div><div class="stat-number" id="sStatVotes">0</div></div><i class="bi bi-check2-all stat-icon" style="font-size:2rem;opacity:0.4;color:var(--fud-secondary);"></i></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color:#28a745;"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Candidates</div><div class="stat-number" id="sStatCandidates">0</div></div><i class="bi bi-people-fill stat-icon" style="font-size:2rem;opacity:0.4;color:#28a745;"></i></div></div></div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card-fud">
+                            <div class="card-header-fud"><i class="bi bi-info-circle"></i> Election Information</div>
+                            <div class="card-body">
+                                <p><strong>📅 Election Period:</strong> March 10, 2026 — March 15, 2026</p>
+                                <p><strong>⏰ Status:</strong> <span class="badge bg-success">Active</span></p>
+                                <p><strong>📋 Total Positions:</strong> <span id="sInfoPositions">0</span></p>
+                                <p><strong>👥 Total Candidates:</strong> <span id="sInfoCandidates">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VOTING PAGE -->
+            <div id="studentVotingPage" class="page-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-fud mb-4">
+                            <div class="card-header-fud">
+                                <i class="bi bi-check2-circle"></i> Cast Your Vote
+                                <span class="badge bg-light text-dark ms-auto">You have <strong id="sVotesRemaining">0</strong> votes remaining</span>
+                            </div>
+                            <div class="card-body" id="sVotingBody"></div>
+                            <div class="card-footer-fud d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-shield-check text-success me-1"></i> Secured &amp; Anonymous</span>
+                                <button class="btn btn-success rounded-pill px-4 fw-bold" id="sSubmitBtn" disabled onclick="studentSubmitVotes()">
+                                    <i class="bi bi-check2-all me-1"></i> Submit All Votes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS PAGE -->
+            <div id="studentResultsPage" class="page-container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card-fud">
+                            <div class="card-header-fud"><i class="bi bi-bar-chart-fill"></i> Full Election Results</div>
+                            <div class="card-body" id="sResultsBody"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE PAGE -->
+            <div id="studentProfilePage" class="page-container">
+                <div class="row">
+                    <div class="col-lg-6 mx-auto">
+                        <div class="profile-card" id="sProfileCard"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer-fud">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <div class="footer-brand">FUD <span>Voting</span> System</div>
+                        <p class="mt-2" style="font-size:0.9rem;max-width:350px;">Secure, transparent, and efficient online voting platform for the Students' Union Government elections at Federal University Dutse.</p>
+                        <div class="footer-credit mt-3"><i class="bi bi-code-square me-1"></i> Built by <strong>ADLE WEBDESIGNS</strong> &bull; <i class="bi bi-telephone ms-2 me-1"></i> 09036842183</div>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="text-white fw-semibold">Quick Links</h6>
+                        <div class="d-flex flex-wrap gap-3">
+                            <a href="#" onclick="showStudentPage('home')">Home</a>
+                            <a href="#" onclick="showStudentPage('voting')">Vote</a>
+                            <a href="#" onclick="showStudentPage('results')">Results</a>
+                            <a href="#" onclick="showStudentPage('profile')">Profile</a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <h6 class="text-white fw-semibold">Contact</h6>
+                        <p style="font-size:0.85rem;"><i class="bi bi-telephone me-2"></i> +234 903 684 2183</p>
+                        <p style="font-size:0.8rem;opacity:0.6;"><i class="bi bi-globe me-1"></i> adlewebdesigns.com</p>
+                    </div>
+                </div>
+                <hr class="mt-3" style="border-color:rgba(255,255,255,0.1);">
+                <div class="d-flex justify-content-between flex-wrap" style="font-size:0.85rem;">
+                    <span>&copy; 2026 Federal University Dutse — SUG Elections</span>
+                    <span><i class="bi bi-shield-check me-1"></i> Secured &bull; <i class="bi bi-lock ms-2 me-1"></i> Encrypted</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ===== ADMIN DASHBOARD ===== -->
+    <div id="adminDashboard" class="dashboard-wrapper">
+        <nav class="navbar navbar-expand-lg navbar-fud">
+            <div class="container">
+                <a class="navbar-brand" href="#" onclick="showAdminPage('home')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f5c518'/%3E%3Ctext x='50' y='68' font-size='48' font-weight='bold' text-anchor='middle' fill='%230a3d7c'%3EFUD%3C/text%3E%3C/svg%3E" alt="FUD" />
+                    <div>FUD Admin<span class="brand-sub">Manage Elections</span></div>
+                </a>
+                <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="adminNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-1">
+                        <li class="nav-item"><a class="nav-link active" href="#" onclick="showAdminPage('home')"><i class="bi bi-house"></i>Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showAdminPage('candidates')"><i class="bi bi-people"></i>Candidates</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showAdminPage('results')"><i class="bi bi-bar-chart"></i>Results</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="showAdminPage('voters')"><i class="bi bi-person-badge"></i>Voters</a></li>
+                        <li class="nav-item ms-lg-2"><span class="user-badge"><i class="bi bi-shield-lock"></i> Admin</span></li>
+                        <li class="nav-item"><a class="nav-link" href="#" onclick="logoutAdmin()" style="color:rgba(255,255,255,0.7)!important;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container" id="adminContent">
+            <!-- ADMIN HOME -->
+            <div id="adminHomePage" class="page-container active">
+                <div class="hero-section">
+                    <div class="container">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8">
+                                <span class="badge-election"><i class="bi bi-shield-lock me-1"></i> Admin Panel</span>
+                                <h1>Welcome, Administrator!</h1>
+                                <p class="fs-5 opacity-75 mb-3" style="max-width:600px;">Manage candidates, view results, and oversee the SUG election process.</p>
+                                <a href="#" onclick="showAdminPage('candidates')" class="btn btn-light btn-lg px-5 fw-bold rounded-pill" style="color:var(--fud-primary);"><i class="bi bi-people me-2"></i>Manage Candidates</a>
+                                <a href="#" onclick="showAdminPage('results')" class="btn btn-outline-light btn-lg px-4 rounded-pill ms-2"><i class="bi bi-bar-chart me-2"></i>View Results</a>
+                            </div>
+                            <div class="col-lg-4 mt-4 mt-lg-0">
+                                <div class="hero-stats">
+                                    <div class="stat-item"><span class="number" id="aTotalCandidates">0</span><span class="label">Candidates</span></div>
+                                    <div class="stat-item"><span class="number" id="aTotalVoters">0</span><span class="label">Voters</span></div>
+                                    <div class="stat-item"><span class="number" id="aTotalVotes">0</span><span class="label">Votes Cast</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4"><div class="stat-card"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Candidates</div><div class="stat-number" id="aStatCandidates">0</div></div><i class="bi bi-people-fill stat-icon" style="font-size:2rem;opacity:0.4;"></i></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color:var(--fud-secondary);"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Registered Voters</div><div class="stat-number" id="aStatVoters">0</div></div><i class="bi bi-person-badge stat-icon" style="font-size:2rem;opacity:0.4;color:var(--fud-secondary);"></i></div></div></div>
+                    <div class="col-md-4"><div class="stat-card" style="border-left-color:#28a745;"><div class="d-flex justify-content-between align-items-center"><div><div class="stat-label">Total Votes</div><div class="stat-number" id="aStatVotes">0</div></div><i class="bi bi-check2-all stat-icon" style="font-size:2rem;opacity:0.4;color:#28a745;"></i></div></div></div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card-fud">
+                            <div class="card-header-fud"><i class="bi bi-info-circle"></i> Election Overview</div>
+                            <div class="card-body">
+                                <p><strong>📅 Election Period:</strong> March 10, 2026 — March 15, 2026</p>
+                                <p><strong>⏰ Status:</strong> <span class="badge bg-success">Active</span></p>
+                                <p><strong>📋 Quick Actions:</strong></p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" onclick="showAdminPage('candidates')" class="btn btn-primary btn-sm">Manage Candidates</a>
+                                    <a href="#" onclick="showAdminPage('voters')" class="btn btn-secondary btn-sm">View Voters</a>
+                                    <a href="#" onclick="showAdminPage('results')" class="btn btn-success btn-sm">View Results</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN CANDIDATES -->
+            <div id="adminCandidatesPage" class="page-container">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="card-fud">
+                            <div class="card-header-fud"><i class="bi bi-plus-circle"></i> Add Candidate</div>
+                            <div class="card-body">
+                                <form id="addCandidateForm" onsubmit="addCandidate(event)">
+                                    <div class="mb-2"><label class="form-label fw-semibold">Full Name</label><input type="text" class="form-control" id="candName" placeholder="e.g. Musty Zaki" required /></div>
+                                    <div class="mb-2"><label class="form-label fw-semibold">Position</label>
+                                        <select class="form-control" id="candPosition" required>
+                                            <option value="">Select Position</option>
+                                            <option>President</option><option>Vice President</option><option>Secretary General</option>
+                                            <option>Treasurer</option><option>Public Relations Officer</option><option>Welfare Director</option><option>Sports Director</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2"><label class="form-label fw-semibold">Department</label><input type="text" class="form-control" id="candDept" placeholder="e.g. Computer Science" required /></div>
+                                    <div class="mb-3"><label class="form-label fw-semibold">Level</label>
+                                        <select class="form-control" id="candLevel" required>
+                                            <option value="">Select Level</option>
+                                            <option>100L</option><option>200L</option><option>300L</option><option>400L</option><option>500L</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary-fud"><i class="bi bi-plus-circle me-1"></i> Add Candidate</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="card-fud">
+                            <div class="card-header-fud"><i class="bi bi-list-ul"></i> Manage Candidates</div>
+                            <div class="card-body" id="aCandidatesList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADMIN RESULTS -->
+            <div id="adminResultsPage" class="page-container">
+                <div class="row"><div class="col-12"><div class="card-fud"><div class="card-header-fud"><i class="bi bi-bar-chart-fill"></i> Full Election Results</div><div class="card-body" id="aResultsBody"></div></div></div></div>
+            </div>
+
+            <!-- ADMIN VOTERS -->
+            <div id="adminVotersPage" class="page-container">
+                <div class="row"><div class="col-12"><div class="card-fud"><div class="card-header-fud"><i class="bi bi-person-badge"></i> Registered Voters</div><div class="card-body" id="aVotersList"></div></div></div></div>
+            </div>
+        </div>
+
+        <footer class="footer-fud">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="footer-brand">FUD <span>Admin</span> Panel</div>
+                        <p class="mt-2" style="font-size:0.9rem;">Manage SUG elections, candidates, and voters.</p>
+                        <div class="footer-credit mt-3"><i class="bi bi-code-square me-1"></i> Built by <strong>ADLE WEBDESIGNS</strong> &bull; <i class="bi bi-telephone ms-2 me-1"></i> 09036842183</div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h6 class="text-white fw-semibold">Quick Links</h6>
+                        <div class="d-flex flex-wrap gap-3 justify-content-md-end">
+                            <a href="#" onclick="showAdminPage('home')">Home</a>
+                            <a href="#" onclick="showAdminPage('candidates')">Candidates</a>
+                            <a href="#" onclick="showAdminPage('results')">Results</a>
+                            <a href="#" onclick="showAdminPage('voters')">Voters</a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="mt-3" style="border-color:rgba(255,255,255,0.1);">
+                <div class="text-center" style="font-size:0.85rem;"><span>&copy; 2026 Federal University Dutse — SUG Elections</span></div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script>
+        // =============================================
+        // DATA STORAGE & SEED
+        // =============================================
+
+        const DEFAULT_ADMIN = { username: 'admin', password: 'admin123' };
+        const POSITIONS = ['President', 'Vice President', 'Secretary General', 'Treasurer', 'Public Relations Officer',
+            'Welfare Director', 'Sports Director'
+        ];
+
+        function seedDefaultData() {
+            let voters = JSON.parse(localStorage.getItem('fud_voters') || '[]');
+            if (voters.length === 0) {
+                voters = [
+                    { fullName: 'Muhammad Mustapha Usman', regNo: 'FUD/CSC/2022/001', email: 'mustapha@fud.edu.ng',
+                        department: 'Computer Science', level: '400L', password: 'password123' },
+                    { fullName: 'Amina Musa', regNo: 'FUD/CSC/2022/002', email: 'amina@fud.edu.ng',
+                        department: 'Computer Science', level: '400L', password: 'password123' },
+                    { fullName: 'John Okafor', regNo: 'FUD/ECO/2022/003', email: 'john@fud.edu.ng',
+                        department: 'Economics', level: '400L', password: 'password123' }
+                ];
+                localStorage.setItem('fud_voters', JSON.stringify(voters));
+            }
+
+            let candidates = JSON.parse(localStorage.getItem('fud_candidates') || '[]');
+            if (candidates.length === 0) {
+                candidates = [
+                    { id: 1, name: 'Amina Musa', position: 'President', department: 'Computer Science', level: '400L',
+                        votes: 0 },
+                    { id: 2, name: 'John Okafor', position: 'President', department: 'Economics', level: '400L',
+                    votes: 0 },
+                    { id: 3, name: 'Fatima Kabir', position: 'Vice President', department: 'Political Science',
+                        level: '300L', votes: 0 },
+                    { id: 4, name: 'David Adebayo', position: 'Vice President', department: 'Engineering', level: '300L',
+                        votes: 0 },
+                    { id: 5, name: 'Oluwaseun Ibrahim', position: 'Secretary General', department: 'Law', level: '400L',
+                        votes: 0 },
+                    { id: 6, name: 'Chioma Mbah', position: 'Secretary General', department: 'Mass Communication',
+                        level: '300L', votes: 0 }
+                ];
+                localStorage.setItem('fud_candidates', JSON.stringify(candidates));
+            }
+
+            let votes = JSON.parse(localStorage.getItem('fud_votes') || '[]');
+            if (votes.length === 0) {
+                const sampleVotes = [
+                    { studentId: 'FUD/CS/2022/002', candidateId: 1, position: 'President' },
+                    { studentId: 'FUD/CS/2022/002', candidateId: 3, position: 'Vice President' },
+                    { studentId: 'FUD/CS/2022/002', candidateId: 5, position: 'Secretary General' },
+                    { studentId: 'FUD/ECO/2022/003', candidateId: 2, position: 'President' },
+                    { studentId: 'FUD/ECO/2022/003', candidateId: 3, position: 'Vice President' },
+                    { studentId: 'FUD/ECO/2022/003', candidateId: 6, position: 'Secretary General' },
+                ];
+                localStorage.setItem('fud_votes', JSON.stringify(sampleVotes));
+                let allCandidates = JSON.parse(localStorage.getItem('fud_candidates') || '[]');
+                sampleVotes.forEach(v => {
+                    const cand = allCandidates.find(c => c.id === v.candidateId);
+                    if (cand) cand.votes = (cand.votes || 0) + 1;
+                });
+                localStorage.setItem('fud_candidates', JSON.stringify(allCandidates));
+            }
+            localStorage.setItem('fud_positions', JSON.stringify(POSITIONS));
+        }
+        seedDefaultData();
+
+        // =============================================
+        // HELPERS
+        // =============================================
+
+        function getCandidates() { return JSON.parse(localStorage.getItem('fud_candidates') || '[]'); }
+
+        function saveCandidates(c) { localStorage.setItem('fud_candidates', JSON.stringify(c)); }
+
+        function getVoters() { return JSON.parse(localStorage.getItem('fud_voters') || '[]'); }
+
+        function saveVoters(v) { localStorage.setItem('fud_voters', JSON.stringify(v)); }
+
+        function getVotes() { return JSON.parse(localStorage.getItem('fud_votes') || '[]'); }
+
+        function showToast(msg) {
+            let existing = document.querySelector('.toast-fud');
+            if (existing) existing.remove();
+            let toast = document.createElement('div');
+            toast.className = 'toast-fud';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500) }, 3000);
+        }
+
+        function showAlert(id, msg) {
+            let el = document.getElementById(id);
+            if (el) { el.textContent = msg;
+                el.style.display = 'block';
+                setTimeout(() => { el.style.display = 'none' }, 4000); }
+        }
+
+        function showSuccess(id, msg) {
+            let el = document.getElementById(id);
+            if (el) { el.textContent = msg;
+                el.style.display = 'block';
+                setTimeout(() => { el.style.display = 'none' }, 4000); }
+        }
+
+        // =============================================
+        // AUTH TAB SWITCHING
+        // =============================================
+
+        function switchAuthTab(tab) {
+            let loginTab = document.getElementById('loginTab');
+            let registerTab = document.getElementById('registerTab');
+            let loginForm = document.getElementById('loginForm');
+            let registerForm = document.getElementById('registerForm');
+            let alert = document.getElementById('authAlert');
+            let success = document.getElementById('authSuccess');
+            alert.style.display = 'none';
+            success.style.display = 'none';
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                registerTab.classList.add('active');
+                loginTab.classList.remove('active');
+                registerForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        }
+
+        // =============================================
+        // AUTH FUNCTIONS
+        // =============================================
+
+        function showStudentAuth() {
+            document.getElementById('adminAuthPage').style.display = 'none';
+            document.getElementById('authPage').style.display = 'flex';
+        }
+
+        function showAdminLogin() {
+            document.getElementById('authPage').style.display = 'none';
+            document.getElementById('adminAuthPage').style.display = 'flex';
+        }
+
+        // STUDENT REGISTER
+        function handleStudentRegister(e) {
+            e.preventDefault();
+
+            let fullName = document.getElementById('regFullName').value.trim();
+            let regNo = document.getElementById('regRegNo').value.trim();
+            let email = document.getElementById('regEmail').value.trim();
+            let department = document.getElementById('regDepartment').value;
+            let level = document.getElementById('regLevel').value;
+            let password = document.getElementById('regPassword').value;
+
+            if (!fullName || !regNo || !email || !department || !level || password.length < 6) {
+                showAlert('authAlert', '⚠️ Please fill all fields correctly (password min 6 chars)');
+                return;
+            }
+
+            let voters = getVoters();
+            if (voters.find(u => u.regNo.toLowerCase() === regNo.toLowerCase())) {
+                showAlert('authAlert', '⚠️ Registration number already exists!');
+                return;
+            }
+            if (voters.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+                showAlert('authAlert', '⚠️ Email already registered!');
+                return;
+            }
+
+            voters.push({ fullName, regNo, email, department, level, password });
+            saveVoters(voters);
+
+            showSuccess('authSuccess', '✅ Registration successful! Please login.');
+            document.getElementById('registerForm').reset();
+            switchAuthTab('login');
+            document.getElementById('studentRegNo').value = regNo;
+        }
+
+        // STUDENT LOGIN
+        function handleStudentLogin(e) {
+            e.preventDefault();
+
+            let regNo = document.getElementById('studentRegNo').value.trim();
+            let password = document.getElementById('studentPassword').value.trim();
+
+            let voters = getVoters();
+            let user = voters.find(u => u.regNo === regNo && u.password === password);
+
+            if (user) {
+                sessionStorage.setItem('fud_student_logged_in', 'true');
+                sessionStorage.setItem('fud_student_user', JSON.stringify(user));
+                showToast('✅ Welcome, ' + user.fullName + '!');
+                document.getElementById('authPage').style.display = 'none';
+                document.getElementById('studentDashboard').classList.add('active');
+                document.getElementById('sDisplayName').textContent = user.fullName.split(' ')[0];
+                document.getElementById('sWelcomeName').textContent = user.fullName.split(' ')[0];
+                updateStudentStats();
+                renderStudentVoting();
+                renderStudentProfile();
+                document.getElementById('loginForm').reset();
+            } else {
+                let userExists = voters.find(u => u.regNo === regNo);
+                if (userExists) {
+                    showAlert('authAlert', '❌ Incorrect password! Please try again.');
+                } else {
+                    showAlert('authAlert', '❌ Registration number not found! Please register first.');
+                    switchAuthTab('register');
+                    document.getElementById('regRegNo').value = regNo;
+                }
+            }
+        }
+
+        // ADMIN LOGIN
+        function handleAdminLogin(e) {
+            e.preventDefault();
+
+            let username = document.getElementById('adminUsername').value.trim();
+            let password = document.getElementById('adminPassword').value.trim();
+
+            let storedAdmin = JSON.parse(localStorage.getItem('fud_admin') || 'null');
+            let admin = storedAdmin || DEFAULT_ADMIN;
+
+            if (username === admin.username && password === admin.password) {
+                sessionStorage.setItem('fud_admin_logged_in', 'true');
+                showToast('✅ Welcome Admin!');
+                document.getElementById('adminAuthPage').style.display = 'none';
+                document.getElementById('adminDashboard').classList.add('active');
+                updateAdminStats();
+                renderAdminCandidates();
+                document.getElementById('adminUsername').value = '';
+                document.getElementById('adminPassword').value = '';
+            } else {
+                showAlert('adminAlert', '❌ Invalid username or password!');
+            }
+        }
+
+        // LOGOUT
+        function logoutStudent() {
+            sessionStorage.removeItem('fud_student_logged_in');
+            sessionStorage.removeItem('fud_student_user');
+            document.getElementById('studentDashboard').classList.remove('active');
+            document.getElementById('authPage').style.display = 'flex';
+            showToast('👋 Logged out');
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('fud_admin_logged_in');
+            document.getElementById('adminDashboard').classList.remove('active');
+            document.getElementById('adminAuthPage').style.display = 'flex';
+            showToast('👋 Admin logged out');
+        }
+
+        // =============================================
+        // PAGE NAVIGATION
+        // =============================================
+
+        function showStudentPage(page) {
+            document.querySelectorAll('#studentContent .page-container').forEach(el => el.classList.remove('active'));
+            let map = { 'home': 'studentHomePage', 'voting': 'studentVotingPage', 'results': 'studentResultsPage',
+                'profile': 'studentProfilePage' };
+            let target = document.getElementById(map[page]);
+            if (target) target.classList.add('active');
+            if (page === 'home') updateStudentStats();
+            if (page === 'voting') renderStudentVoting();
+            if (page === 'results') renderStudentResults();
+            if (page === 'profile') renderStudentProfile();
+
+            document.querySelectorAll('#studentNav .nav-link').forEach(el => el.classList.remove('active'));
+            let navMap = { 'home': 0, 'voting': 1, 'results': 2, 'profile': 3 };
+            let navLinks = document.querySelectorAll('#studentNav .nav-link');
+            if (navLinks[navMap[page]]) navLinks[navMap[page]].classList.add('active');
+        }
+
+        function showAdminPage(page) {
+            document.querySelectorAll('#adminContent .page-container').forEach(el => el.classList.remove('active'));
+            let map = { 'home': 'adminHomePage', 'candidates': 'adminCandidatesPage', 'results': 'adminResultsPage',
+                'voters': 'adminVotersPage' };
+            let target = document.getElementById(map[page]);
+            if (target) target.classList.add('active');
+            if (page === 'home') updateAdminStats();
+            if (page === 'candidates') renderAdminCandidates();
+            if (page === 'results') renderAdminResults();
+            if (page === 'voters') renderAdminVoters();
+
+            document.querySelectorAll('#adminNav .nav-link').forEach(el => el.classList.remove('active'));
+            let navMap = { 'home': 0, 'candidates': 1, 'results': 2, 'voters': 3 };
+            let navLinks = document.querySelectorAll('#adminNav .nav-link');
+            if (navLinks[navMap[page]]) navLinks[navMap[page]].classList.add('active');
+        }
+
+        // =============================================
+        // UPDATE STATS
+        // =============================================
+
+        function updateStudentStats() {
+            let voters = getVoters(),
+                candidates = getCandidates(),
+                votes = getVotes(),
+                positions = JSON.parse(localStorage.getItem('fud_positions') || '[]');
+            document.getElementById('sTotalVoters').textContent = voters.length;
+            document.getElementById('sTotalVotes').textContent = votes.length;
+            document.getElementById('sTotalCandidates').textContent = candidates.length;
+            document.getElementById('sTotalPositions').textContent = positions.length;
+            document.getElementById('sStatStudents').textContent = voters.length;
+            document.getElementById('sStatVotes').textContent = votes.length;
+            document.getElementById('sStatCandidates').textContent = candidates.length;
+            document.getElementById('sInfoPositions').textContent = positions.length;
+            document.getElementById('sInfoCandidates').textContent = candidates.length;
+        }
+
+        function updateAdminStats() {
+            let voters = getVoters(),
+                candidates = getCandidates(),
+                votes = getVotes();
+            document.getElementById('aTotalCandidates').textContent = candidates.length;
+            document.getElementById('aTotalVoters').textContent = voters.length;
+            document.getElementById('aTotalVotes').textContent = votes.length;
+            document.getElementById('aStatCandidates').textContent = candidates.length;
+            document.getElementById('aStatVoters').textContent = voters.length;
+            document.getElementById('aStatVotes').textContent = votes.length;
+        }
+
+        // =============================================
+        // ADMIN: CANDIDATES
+        // =============================================
+
+        function addCandidate(e) {
+            e.preventDefault();
+            let name = document.getElementById('candName').value.trim();
+            let position = document.getElementById('candPosition').value;
+            let department = document.getElementById('candDept').value.trim();
+            let level = document.getElementById('candLevel').value;
+
+            if (!name || !position || !department || !level) { showToast('⚠️ Please fill all fields'); return; }
+
+            let candidates = getCandidates();
+            let newId = candidates.length > 0 ? Math.max(...candidates.map(c => c.id)) + 1 : 1;
+            candidates.push({ id: newId, name, position, department, level, votes: 0 });
+            saveCandidates(candidates);
+            document.getElementById('addCandidateForm').reset();
+            renderAdminCandidates();
+            updateAdminStats();
+            showToast('✅ Candidate added successfully!');
+        }
+
+        function deleteCandidate(id) {
+            if (!confirm('Delete this candidate?')) return;
+            let candidates = getCandidates();
+            candidates = candidates.filter(c => c.id !== id);
+            saveCandidates(candidates);
+            renderAdminCandidates();
+            updateAdminStats();
+            showToast('🗑️ Candidate deleted');
+        }
+
+        function renderAdminCandidates() {
+            let container = document.getElementById('aCandidatesList');
+            let candidates = getCandidates();
+            if (candidates.length === 0) {
+                container.innerHTML =
+                    `<div class="text-center text-muted py-4"><i class="bi bi-inbox fs-1 d-block"></i>No candidates added yet</div>`;
+                return;
+            }
+            let html =
+                `<div class="admin-table-wrap"><table><thead><tr><th>#</th><th>Name</th><th>Position</th><th>Department</th><th>Level</th><th>Votes</th><th>Action</th></tr></thead><tbody>`;
+            candidates.forEach((c, i) => {
+                html +=
+                    `<tr><td>${i+1}</td><td><strong>${c.name}</strong></td><td>${c.position}</td><td>${c.department}</td><td>${c.level}</td><td><span class="badge-votes">${c.votes||0}</span></td><td><button class="btn-sm-danger" onclick="deleteCandidate(${c.id})"><i class="bi bi-trash"></i> Delete</button></td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+        }
+
+        // =============================================
+        // ADMIN: RESULTS & VOTERS
+        // =============================================
+
+        function renderAdminResults() {
+            let container = document.getElementById('aResultsBody');
+            let candidates = getCandidates();
+            if (candidates.length === 0) { container.innerHTML =
+                    `<div class="text-center text-muted py-4">No candidates found</div>`; return; }
+            let grouped = {};
+            candidates.forEach(c => { if (!grouped[c.position]) grouped[c.position] = [];
+                grouped[c.position].push(c); });
+            let html = '';
+            for (let [position, list] of Object.entries(grouped)) {
+                let totalVotes = list.reduce((sum, c) => sum + (c.votes || 0), 0);
+                html += `<h5 class="fw-bold mt-4 mb-3"><i class="bi bi-star-fill text-warning me-1"></i> ${position}</h5>`;
+                let sorted = [...list].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+                sorted.forEach((c, i) => {
+                    let pct = totalVotes > 0 ? Math.round((c.votes / totalVotes) * 100) : 0;
+                    let isWinner = i === 0 && totalVotes > 0;
+                    html +=
+                        `<div class="result-bar"><span class="cand-name">${isWinner ? '🏆 ' : ''}${c.name}${isWinner ? ' <span class="badge bg-success ms-1">WINNER</span>' : ''}</span><div class="progress-track"><div class="fill" style="width:${pct}%;"></div></div><span class="percentage">${pct}%</span><span class="vote-count">${c.votes||0} votes</span></div>`;
+                });
+                if (totalVotes === 0) html += `<p class="text-muted small">No votes cast yet for this position.</p>`;
+                html += `<hr>`;
+            }
+            container.innerHTML = html;
+            setTimeout(() => {
+                container.querySelectorAll('.fill').forEach((bar, i) => {
+                    let target = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => { bar.style.width = target; }, 200 + i * 100);
+                });
+            }, 100);
+        }
+
+        function renderAdminVoters() {
+            let container = document.getElementById('aVotersList');
+            let voters = getVoters();
+            if (voters.length === 0) { container.innerHTML =
+                    `<div class="text-center text-muted py-4">No registered voters</div>`; return; }
+            let html =
+                `<div class="admin-table-wrap"><table><thead><tr><th>#</th><th>Full Name</th><th>Reg No</th><th>Department</th><th>Level</th></tr></thead><tbody>`;
+            voters.forEach((v, i) => {
+                html +=
+                    `<tr><td>${i+1}</td><td><strong>${v.fullName}</strong></td><td>${v.regNo}</td><td>${v.department}</td><td>${v.level}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            container.innerHTML = html;
+        }
+
+        // =============================================
+        // STUDENT: VOTING
+        // =============================================
+
+        let studentVotedPositions = new Set();
+
+        function renderStudentVoting() {
+            let container = document.getElementById('sVotingBody');
+            let candidates = getCandidates();
+            if (candidates.length === 0) {
+                container.innerHTML =
+                    `<div class="text-center text-muted py-4">No candidates available. Please check back later.</div>`;
+                return;
+            }
+            let userData = sessionStorage.getItem('fud_student_user');
+            if (userData) {
+                let user = JSON.parse(userData);
+                let votes = getVotes();
+                let userVotes = votes.filter(v => v.studentId === user.regNo);
+                studentVotedPositions = new Set(userVotes.map(v => v.position));
+            }
+            let grouped = {};
+            candidates.forEach(c => { if (!grouped[c.position]) grouped[c.position] = [];
+                grouped[c.position].push(c); });
+            let html = '';
+            for (let [position, list] of Object.entries(grouped)) {
+                let hasVoted = studentVotedPositions.has(position);
+                html += `<h6 class="fw-bold mt-3 mb-2"><i class="bi bi-star-fill text-warning me-1"></i> ${position}</h6>`;
+                list.forEach(c => {
+                    let isVoted = hasVoted;
+                    html +=
+                        `<div class="candidate-item" data-position="${position}"><div class="avatar">${c.name.split(' ').map(n=>n[0]).join('')}</div><div class="cand-info"><div class="name">${c.name}</div><span class="position">${c.position}</span><span class="dept">${c.department} • ${c.level}</span></div><button class="vote-btn" onclick="studentCastVote(this, '${c.name}', '${position}', ${c.id})" ${isVoted ? 'disabled' : ''}><i class="bi bi-check me-1"></i> ${isVoted ? 'Voted ✓' : 'Vote'}</button></div>`;
+                });
+                if (hasVoted) html +=
+                    `<p class="text-success small"><i class="bi bi-check-circle me-1"></i> You voted for this position</p>`;
+            }
+            container.innerHTML = html;
+            let remaining = Object.keys(grouped).length - studentVotedPositions.size;
+            document.getElementById('sVotesRemaining').textContent = remaining;
+            document.getElementById('sSubmitBtn').disabled = !(remaining === 0 && Object.keys(grouped).length > 0);
+        }
+
+        function studentCastVote(btn, candidateName, position, candidateId) {
+            if (btn.disabled) return;
+            if (studentVotedPositions.has(position)) { showToast('⚠️ You already voted for ' + position); return; }
+
+            let userData = sessionStorage.getItem('fud_student_user');
+            if (!userData) { showToast('⚠️ Please login first'); return; }
+            let user = JSON.parse(userData);
+
+            let positionGroup = btn.closest('.card-body');
+            let allBtns = positionGroup.querySelectorAll(`.candidate-item[data-position="${position}"] .vote-btn`);
+            allBtns.forEach(b => { b.disabled = true;
+                b.innerHTML = '<i class="bi bi-x-circle me-1"></i> Voted';
+                b.classList.remove('btn-primary');
+                b.classList.add('btn-secondary'); });
+
+            btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Voted ✓';
+            btn.classList.remove('btn-secondary');
+            btn.classList.add('btn-success');
+            btn.disabled = true;
+            studentVotedPositions.add(position);
+
+            let votes = getVotes();
+            let existing = votes.find(v => v.studentId === user.regNo && v.position === position);
+            if (!existing) {
+                votes.push({ studentId: user.regNo, candidateId: candidateId, position: position });
+                localStorage.setItem('fud_votes', JSON.stringify(votes));
+                let candidates = getCandidates();
+                let cand = candidates.find(c => c.id === candidateId);
+                if (cand) { cand.votes = (cand.votes || 0) + 1;
+                    saveCandidates(candidates); }
+            }
+
+            let uniquePositions = new Set();
+            document.querySelectorAll('.candidate-item[data-position]').forEach(el => uniquePositions.add(el.dataset
+            .position));
+            let remaining = uniquePositions.size - studentVotedPositions.size;
+            document.getElementById('sVotesRemaining').textContent = remaining;
+            document.getElementById('sSubmitBtn').disabled = !(remaining === 0);
+            showToast('✅ You voted for ' + candidateName + ' (' + position + ')');
+            renderStudentVoting();
+            updateStudentStats();
+        }
+
+        function studentSubmitVotes() {
+            let uniquePositions = new Set();
+            document.querySelectorAll('.candidate-item[data-position]').forEach(el => uniquePositions.add(el.dataset
+            .position));
+            if (studentVotedPositions.size < uniquePositions.size) { showToast('⚠️ Please vote for all positions first!');
+                return; }
+            document.getElementById('sSubmitBtn').disabled = true;
+            document.getElementById('sSubmitBtn').innerHTML = '<i class="bi bi-check2-circle me-1"></i> Votes Submitted!';
+            showToast('🎉 All votes submitted successfully! Thank you for participating.');
+            updateStudentStats();
+        }
+
+        // =============================================
+        // STUDENT: RESULTS & PROFILE
+        // =============================================
+
+        function renderStudentResults() {
+            let container = document.getElementById('sResultsBody');
+            let candidates = getCandidates();
+            if (candidates.length === 0) { container.innerHTML =
+                    `<div class="text-center text-muted py-4">No candidates found</div>`; return; }
+            let grouped = {};
+            candidates.forEach(c => { if (!grouped[c.position]) grouped[c.position] = [];
+                grouped[c.position].push(c); });
+            let html = '';
+            for (let [position, list] of Object.entries(grouped)) {
+                let totalVotes = list.reduce((sum, c) => sum + (c.votes || 0), 0);
+                html += `<h5 class="fw-bold mt-4 mb-3"><i class="bi bi-star-fill text-warning me-1"></i> ${position}</h5>`;
+                let sorted = [...list].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+                sorted.forEach((c, i) => {
+                    let pct = totalVotes > 0 ? Math.round((c.votes / totalVotes) * 100) : 0;
+                    let isWinner = i === 0 && totalVotes > 0;
+                    html +=
+                        `<div class="result-bar"><span class="cand-name">${isWinner ? '🏆 ' : ''}${c.name}${isWinner ? ' <span class="badge bg-success ms-1">WINNER</span>' : ''}</span><div class="progress-track"><div class="fill" style="width:${pct}%;"></div></div><span class="percentage">${pct}%</span><span class="vote-count">${c.votes||0} votes</span></div>`;
+                });
+                if (totalVotes === 0) html += `<p class="text-muted small">No votes cast yet for this position.</p>`;
+                html += `<hr>`;
+            }
+            container.innerHTML = html;
+            setTimeout(() => {
+                container.querySelectorAll('.fill').forEach((bar, i) => {
+                    let target = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => { bar.style.width = target; }, 200 + i * 100);
+                });
+            }, 100);
+        }
+
+        function renderStudentProfile() {
+            let container = document.getElementById('sProfileCard');
+            let userData = sessionStorage.getItem('fud_student_user');
+            if (!userData) { container.innerHTML = `<p class="text-muted">Please login to view profile</p>`; return; }
+            let user = JSON.parse(userData);
+            let votes = getVotes();
+            let userVotes = votes.filter(v => v.studentId === user.regNo);
+            let initials = user.fullName.split(' ').map(n => n[0]).join('');
+            container.innerHTML = `
+                <div class="avatar-lg">${initials}</div>
+                <div class="name">${user.fullName}</div>
+                <div class="badge-role">Student</div>
+                <hr>
+                <div class="text-start">
+                    <p class="detail"><strong>Registration No:</strong> ${user.regNo}</p>
+                    <p class="detail"><strong>Email:</strong> ${user.email}</p>
+                    <p class="detail"><strong>Department:</strong> ${user.department}</p>
+                    <p class="detail"><strong>Level:</strong> ${user.level}</p>
+                    <p class="detail"><strong>Votes Cast:</strong> ${userVotes.length}</p>
+                    <p class="detail"><strong>Status:</strong> <span class="badge bg-success">Active</span></p>
+                </div>
+            `;
+        }
+
+        // =============================================
+        // CHECK SESSION ON LOAD
+        // =============================================
+
+        (function checkSession() {
+            if (sessionStorage.getItem('fud_admin_logged_in') === 'true') {
+                document.getElementById('adminAuthPage').style.display = 'none';
+                document.getElementById('adminDashboard').classList.add('active');
+                updateAdminStats();
+                renderAdminCandidates();
+                return;
+            }
+            if (sessionStorage.getItem('fud_student_logged_in') === 'true') {
+                document.getElementById('authPage').style.display = 'none';
+                document.getElementById('studentDashboard').classList.add('active');
+                let userData = sessionStorage.getItem('fud_student_user');
+                if (userData) {
+                    try {
+                        let user = JSON.parse(userData);
+                        document.getElementById('sDisplayName').textContent = user.fullName.split(' ')[0];
+                        document.getElementById('sWelcomeName').textContent = user.fullName.split(' ')[0];
+                    } catch (e) {}
+                }
+                updateStudentStats();
+                renderStudentVoting();
+                renderStudentProfile();
+                return;
+            }
+            document.getElementById('authPage').style.display = 'flex';
+        })();
+    </script>
+
+</body>
+</html>
